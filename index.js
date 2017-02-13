@@ -177,23 +177,11 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#dedede',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
   drawer: {
     position: "absolute",
     top: 0,
     width: width,
     height: height,
-    alignItems: "center",
-    justifyContent: "center",
     zIndex: 1
   },
   front: {
