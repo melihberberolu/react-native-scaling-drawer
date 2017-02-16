@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PropTypes, Component} from 'react';
 import {
   StyleSheet,
   View,
@@ -9,16 +9,23 @@ import {
 } from 'react-native';
 const {width, height} = Dimensions.get('window');
 
-class SwipeAbleDrawer extends React.Component {
+class SwipeAbleDrawer extends Component {
+  static defaultProps = {
+    scalingFactor: 0.5,
+    minimizeFactor: 0.5,
+    swipeOffset: 10,
+  };
+
   constructor(props) {
     super(props);
     this.state = {
-      isOpen: props.isOpen || false,
+      isOpen: false,
     };
+
     this.isBlockDrawer = false;
     this.translateX = 0;
     this.scale = 1;
-    this.scalingValue = 0.6;
+    this.maxTranslateXValue = Math.ceil(width * props.minimizeFactor);
     this.drawerAnimation = new Animated.Value(0);
   }
 
@@ -37,23 +44,27 @@ class SwipeAbleDrawer extends React.Component {
 
   _onStartShouldSetPanResponder = (e, gestureState) => {
     if (this.state.isOpen) {
-      this.scale = this.scalingValue;
-      this.translateX = width * this.scalingValue;
-      this.setState({isOpen: false}, () => this.onDrawerAnimation())
+      this.scale = this.props.scalingFactor;
+      this.translateX = this.maxTranslateXValue;
+      this.setState({isOpen: false}, () => {
+        this.props.onClose && this.props.onClose();
+        this.onDrawerAnimation()
+      });
     }
   };
-  _onMoveShouldSetPanResponder = (e, gestureState) => {
+  _onMoveShouldSetPanResponder = (e, {dx, dy, moveX}) => {
     if (!this.isBlockDrawer) {
-      return ((Math.abs(gestureState.dx) > Math.abs(gestureState.dy)
-        && gestureState.dx < 20 && gestureState.moveX < 7) || this.state.isOpen) || this.state.isPan;
+      return ((Math.abs(dx) > Math.abs(dy)
+      && dx < 20 && moveX < this.props.swipeOffset) || this.state.isOpen);
     }
     return false;
   };
   _onPanResponderMove = (e, {dx}) => {
     if (dx < 0 && !this.state.isOpen) return false;
-    if (Math.round(dx) < width * this.scalingValue && !this.state.isOpen) {
+    if (Math.round(dx) < this.maxTranslateXValue && !this.state.isOpen) {
       this.translateX = Math.round(dx);
-      this.scale = width / (width + dx);
+      this.scale = 1 - ((this.translateX  * (1 - this.props.scalingFactor)) / this.maxTranslateXValue);
+
       this.frontRef.setNativeProps({
         style: {
           transform: [{translateX: this.translateX},
@@ -66,12 +77,14 @@ class SwipeAbleDrawer extends React.Component {
       ]);
     }
   };
-  _onPanResponderRelease = (e, gestureState) => {
-    if (gestureState.dx < 0 && !this.state.isOpen) return false;
-    if (gestureState.dx > width * 0.1) {
+
+  _onPanResponderRelease = (e, {dx}) => {
+    if (dx < 0 && !this.state.isOpen) return false;
+    if (dx > width * 0.1) {
       this.setState({isOpen: true}, () => {
-        this.scale = this.scalingValue;
-        this.translateX = width * this.scalingValue;
+        this.scale = this.props.scalingFactor;
+        this.translateX = this.maxTranslateXValue;
+        this.props.onOpen && this.props.onOpen();
       });
       this.onDrawerAnimation();
     } else {
@@ -102,12 +115,12 @@ class SwipeAbleDrawer extends React.Component {
     {
       translateX: this.drawerAnimation.interpolate({
         inputRange: [0, 1],
-        outputRange: [this.translateX, width * this.scalingValue],
+        outputRange: [this.translateX, this.maxTranslateXValue],
         extrapolate: 'clamp'
       }),
       scale: this.drawerAnimation.interpolate({
         inputRange: [0, 1],
-        outputRange: [this.scale, this.scalingValue],
+        outputRange: [this.scale, this.props.scalingFactor],
         extrapolate: 'clamp'
       })
     }
@@ -127,8 +140,8 @@ class SwipeAbleDrawer extends React.Component {
   }
 
   close = () => {
-    this.scale = this.scalingValue;
-    this.translateX = width * this.scalingValue;
+    this.scale = this.props.scalingFactor;
+    this.translateX = this.maxTranslateXValue;
     this.setState({isOpen: false}, () => {
       this.onDrawerAnimation();
       this.props.onClose && this.props.onClose();
@@ -139,8 +152,8 @@ class SwipeAbleDrawer extends React.Component {
     this.scale = 1;
     this.translateX = 0;
     this.setState({isOpen: true}, () => {
-      this.onDrawerAnimation();
       this.props.onOpen && this.props.onOpen();
+      this.onDrawerAnimation()
     })
   };
 
@@ -157,17 +170,15 @@ class SwipeAbleDrawer extends React.Component {
             transform: [{translateX}, {scale}]
           },
             styles.shadow,
-            this.props.styles]
+            this.props.frontStyle]
           }
         >
           {this.props.children}
-          {
-            this.state.isOpen && <View style={styles.mask}/>
-          }
+          {this.state.isOpen && <View style={styles.mask}/>}
         </Animated.View>
-        <Animated.View style={styles.drawer}>
+        <View style={[styles.drawer, this.props.contentWrapperStyle]}>
           {this.props.content}
-        </Animated.View>
+        </View>
       </View>
     );
   }
@@ -208,5 +219,27 @@ const styles = StyleSheet.create({
     left: 0
   }
 });
+
+const floatRange = (props, propName, componentName) => {
+  if (props[propName] < 0.1 || props[propName] >= 1) {
+    return new Error(
+      `Invalid prop ${propName} supplied to ${componentName}. ${propName} is must be higher than 0.1 and lower than 1`
+    )
+  }
+};
+
+React.PropTypes = {
+  ...React.PropTypes,
+  floatRange
+};
+
+SwipeAbleDrawer.propTypes = {
+  scalingFactor: React.PropTypes.floatRange,
+  minimizeFactor: React.PropTypes.floatRange,
+  swipeOffset: React.PropTypes.number,
+  contentWrapperStyle: React.PropTypes.object,
+  frontStyle: React.PropTypes.object,
+  content: React.PropTypes.element
+};
 
 export default SwipeAbleDrawer;
