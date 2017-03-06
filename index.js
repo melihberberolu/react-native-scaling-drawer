@@ -157,6 +157,10 @@ class SwipeAbleDrawer extends Component {
     })
   };
 
+  isOpen = () => {
+    return this.state.isOpen;
+  };
+
   render() {
     const translateX = this.animationInterpolate().translateX;
     const scale = this.animationInterpolate().scale;
