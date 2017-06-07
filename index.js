@@ -1,4 +1,5 @@
-import React, {PropTypes, Component} from 'react';
+import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import {
   StyleSheet,
   View,
@@ -232,14 +233,9 @@ const floatRange = (props, propName, componentName) => {
   }
 };
 
-React.PropTypes = {
-  ...React.PropTypes,
-  floatRange
-};
-
 SwipeAbleDrawer.propTypes = {
-  scalingFactor: React.PropTypes.floatRange,
-  minimizeFactor: React.PropTypes.floatRange,
+  scalingFactor: floatRange,
+  minimizeFactor: floatRange,
   swipeOffset: React.PropTypes.number,
   contentWrapperStyle: React.PropTypes.object,
   frontStyle: React.PropTypes.object,

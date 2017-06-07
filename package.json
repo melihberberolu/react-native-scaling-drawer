@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/melihberberolu/react-native-scaling-drawer#readme",
   "dependencies": {
+    "prop-types": "^15.5.10",
     "react-navigation": "^1.0.0-beta.3"
   }
 }
