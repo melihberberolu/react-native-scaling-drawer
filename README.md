@@ -29,7 +29,7 @@ If you want to disable drawer swipe, you can access blockSwipeAbleDrawer method 
 
 import React, {Component} from 'react';
 import {View, StatusBar, TouchableOpacity, Text} from 'react-native';
-import ScalingDrawer from './ScalingDrawer';
+import ScalingDrawer from 'react-native-scaling-drawer';
 import Home from './container/Home';
 import Profile from './container/Profile';
 import Wins from './container/Wins';
