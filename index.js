@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
 const floatRange = (props, propName, componentName) => {
   if (props[propName] < 0.1 || props[propName] >= 1) {
     return new Error(
-      `Invalid prop ${propName} supplied to ${componentName}. ${propName} is must be higher than 0.1 and lower than 1`
+      `Invalid prop ${propName} supplied to ${componentName}. ${propName} must be between 0.1 and 1.0`
     )
   }
 };
