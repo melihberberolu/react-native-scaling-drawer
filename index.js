@@ -236,10 +236,10 @@ const floatRange = (props, propName, componentName) => {
 SwipeAbleDrawer.propTypes = {
   scalingFactor: floatRange,
   minimizeFactor: floatRange,
-  swipeOffset: React.PropTypes.number,
-  contentWrapperStyle: React.PropTypes.object,
-  frontStyle: React.PropTypes.object,
-  content: React.PropTypes.element
+  swipeOffset: PropTypes.number,
+  contentWrapperStyle: PropTypes.object,
+  frontStyle: PropTypes.object,
+  content: PropTypes.element
 };
 
 export default SwipeAbleDrawer;
