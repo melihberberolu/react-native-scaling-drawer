@@ -17,7 +17,7 @@ const AppStack = createStackNavigator({
   }
 });
 
-const drawer = createRef();
+export const drawer = createRef();
 
 const defaultScalingDrawerConfig = {
   scalingFactor: 0.6,
