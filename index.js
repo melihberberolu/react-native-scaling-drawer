@@ -254,5 +254,7 @@ SwipeAbleDrawer.propTypes = {
   frontStyle: PropTypes.object,
   content: PropTypes.element
 };
-
+SwipeAbleDrawer.defaultProps = {
+  position:'left'
+};
 export default SwipeAbleDrawer;
