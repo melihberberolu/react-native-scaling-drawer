@@ -186,6 +186,7 @@ class SwipeAbleDrawer extends Component {
           {...this.panResponder.panHandlers}
           ref={ref => this.frontRef = ref}
           style={[styles.front, {
+            height:this.state.dims.height,
             transform: [{translateX}, {scale}]
           },
             styles.shadow,
@@ -195,7 +196,7 @@ class SwipeAbleDrawer extends Component {
           {this.props.children}
           {this.state.isOpen && <View style={styles.mask}/>}
         </Animated.View>
-        <View style={[styles.drawer, this.props.contentWrapperStyle,{width: this.state.dims.width}]}>
+        <View style={[styles.drawer, this.props.contentWrapperStyle,{height:this.state.dims.height, width: this.state.dims.width}]}>
           {this.props.content}
         </View>
       </View>
@@ -211,12 +212,10 @@ const styles = StyleSheet.create({
   drawer: {
     position: "absolute",
     top: 0,
-    height: height,
     zIndex: 1
   },
   front: {
     backgroundColor: "white",
-    height: height,
     zIndex: 2
   },
   mask: {
