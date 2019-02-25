@@ -21,6 +21,7 @@ class SwipeAbleDrawer extends Component {
     super(props);
     this.state = {
       isOpen: false,
+      dims: Dimensions.get("window"),
     };
     if(this.props.position==='right'){
       this.isPositionRight= true
@@ -30,7 +31,7 @@ class SwipeAbleDrawer extends Component {
     this.isBlockDrawer = false;
     this.translateX = 0;
     this.scale = 1;
-    this.maxTranslateXValue = (-1)**this.isPositionRight * Math.ceil(width * props.minimizeFactor);
+    this.maxTranslateXValue = (-1)**this.isPositionRight * Math.ceil(this.state.dims.width * props.minimizeFactor);
     this.drawerAnimation = new Animated.Value(0);
   }
 
@@ -41,7 +42,9 @@ class SwipeAbleDrawer extends Component {
       onPanResponderMove: this._onPanResponderMove,
       onPanResponderRelease: this._onPanResponderRelease
     });
+    Dimensions.addEventListener("change", this.dimhandler);
   }
+  dimhandler = dims => this.setState({dims: dims.window});
 
   blockSwipeAbleDrawer = (isBlock) => {
     this.isBlockDrawer = isBlock;
@@ -61,7 +64,7 @@ class SwipeAbleDrawer extends Component {
     if (!this.isBlockDrawer) {
       if (this.isPositionRight){
         return ((Math.abs(dx) > Math.abs(dy)
-          && dx < 20  && moveX > width - this.props.swipeOffset) || this.state.isOpen);
+          && dx < 20  && moveX > this.state.dims.width - this.props.swipeOffset) || this.state.isOpen);
       }else{
         return ((Math.abs(dx) > Math.abs(dy)
           && dx < 20 && moveX < this.props.swipeOffset) || this.state.isOpen);
@@ -92,7 +95,7 @@ class SwipeAbleDrawer extends Component {
 
   _onPanResponderRelease = (e, {dx}) => {
     if ((-1)**this.isPositionRight *dx < 0 && !this.state.isOpen) return false;
-    if ((-1)**this.isPositionRight * dx > width * 0.1) {
+    if ((-1)**this.isPositionRight * dx > this.state.dims.width * 0.1) {
       this.setState({isOpen: true}, () => {
         this.scale = this.props.scalingFactor;
         this.translateX = this.maxTranslateXValue;
@@ -183,6 +186,7 @@ class SwipeAbleDrawer extends Component {
           {...this.panResponder.panHandlers}
           ref={ref => this.frontRef = ref}
           style={[styles.front, {
+            height:this.state.dims.height,
             transform: [{translateX}, {scale}]
           },
             styles.shadow,
@@ -192,7 +196,7 @@ class SwipeAbleDrawer extends Component {
           {this.props.children}
           {this.state.isOpen && <View style={styles.mask}/>}
         </Animated.View>
-        <View style={[styles.drawer, this.props.contentWrapperStyle]}>
+        <View style={[styles.drawer, this.props.contentWrapperStyle,{height:this.state.dims.height, width: this.state.dims.width}]}>
           {this.props.content}
         </View>
       </View>
@@ -208,13 +212,10 @@ const styles = StyleSheet.create({
   drawer: {
     position: "absolute",
     top: 0,
-    width: width,
-    height: height,
     zIndex: 1
   },
   front: {
     backgroundColor: "white",
-    height: height,
     zIndex: 2
   },
   mask: {
