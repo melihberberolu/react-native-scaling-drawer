@@ -22,11 +22,15 @@ class SwipeAbleDrawer extends Component {
     this.state = {
       isOpen: false,
     };
-
+    if(this.props.position==='right'){
+      this.isPositionRight= true
+    }else if (this.props.position==='left'){
+      this.isPositionRight= false
+    }
     this.isBlockDrawer = false;
     this.translateX = 0;
     this.scale = 1;
-    this.maxTranslateXValue = Math.ceil(width * props.minimizeFactor);
+    this.maxTranslateXValue = (-1)**this.isPositionRight * Math.ceil(width * props.minimizeFactor);
     this.drawerAnimation = new Animated.Value(0);
   }
 
@@ -55,33 +59,40 @@ class SwipeAbleDrawer extends Component {
   };
   _onMoveShouldSetPanResponder = (e, {dx, dy, moveX}) => {
     if (!this.isBlockDrawer) {
-      return ((Math.abs(dx) > Math.abs(dy)
-      && dx < 20 && moveX < this.props.swipeOffset) || this.state.isOpen);
+      if (this.isPositionRight){
+        return ((Math.abs(dx) > Math.abs(dy)
+          && dx < 20  && moveX > width - this.props.swipeOffset) || this.state.isOpen);
+      }else{
+        return ((Math.abs(dx) > Math.abs(dy)
+          && dx < 20 && moveX < this.props.swipeOffset) || this.state.isOpen);
+      }
     }
     return false;
   };
   _onPanResponderMove = (e, {dx}) => {
-    if (dx < 0 && !this.state.isOpen) return false;
-    if (Math.round(dx) < this.maxTranslateXValue && !this.state.isOpen) {
-      this.translateX = Math.round(dx);
-      this.scale = 1 - ((this.translateX  * (1 - this.props.scalingFactor)) / this.maxTranslateXValue);
+    if (!this.state.isOpen){
+      if ((-1)**this.isPositionRight * dx < 0 ) return false;
+      if ( Math.abs(Math.round(dx)) < Math.abs(this.maxTranslateXValue)) {
+        this.translateX = Math.round(dx);
+        this.scale = 1 - ((this.translateX  * (1 - this.props.scalingFactor)) / this.maxTranslateXValue);
 
-      this.frontRef.setNativeProps({
-        style: {
-          transform: [{translateX: this.translateX},
-            {scale: this.scale}],
-          opacity: this.opacity
-        }
-      });
-      Animated.event([
-        null, {dx: this.drawerAnimation}
-      ]);
+        this.frontRef.setNativeProps({
+          style: {
+            transform: [{translateX: this.translateX},
+              {scale: this.scale}],
+            opacity: this.opacity
+          }
+        });
+        Animated.event([
+          null, {dx: this.drawerAnimation}
+        ]);
+      }
     }
   };
 
   _onPanResponderRelease = (e, {dx}) => {
-    if (dx < 0 && !this.state.isOpen) return false;
-    if (dx > width * 0.1) {
+    if ((-1)**this.isPositionRight *dx < 0 && !this.state.isOpen) return false;
+    if ((-1)**this.isPositionRight * dx > width * 0.1) {
       this.setState({isOpen: true}, () => {
         this.scale = this.props.scalingFactor;
         this.translateX = this.maxTranslateXValue;
@@ -113,31 +124,31 @@ class SwipeAbleDrawer extends Component {
 
   animationInterpolate() {
     return this.state.isOpen ?
-    {
-      translateX: this.drawerAnimation.interpolate({
-        inputRange: [0, 1],
-        outputRange: [this.translateX, this.maxTranslateXValue],
-        extrapolate: 'clamp'
-      }),
-      scale: this.drawerAnimation.interpolate({
-        inputRange: [0, 1],
-        outputRange: [this.scale, this.props.scalingFactor],
-        extrapolate: 'clamp'
-      })
-    }
+      {
+        translateX: this.drawerAnimation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [this.translateX, this.maxTranslateXValue],
+          extrapolate: 'clamp'
+        }),
+        scale: this.drawerAnimation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [this.scale, this.props.scalingFactor],
+          extrapolate: 'clamp'
+        })
+      }
       :
-    {
-      translateX: this.drawerAnimation.interpolate({
-        inputRange: [0, 1],
-        outputRange: [this.translateX, 0],
-        extrapolate: 'clamp'
-      }),
-      scale: this.drawerAnimation.interpolate({
-        inputRange: [0, 1],
-        outputRange: [this.scale, 1],
-        extrapolate: 'clamp'
-      })
-    }
+      {
+        translateX: this.drawerAnimation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [this.translateX, 0],
+          extrapolate: 'clamp'
+        }),
+        scale: this.drawerAnimation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [this.scale, 1],
+          extrapolate: 'clamp'
+        })
+      }
   }
 
   close = () => {
@@ -238,9 +249,12 @@ SwipeAbleDrawer.propTypes = {
   scalingFactor: floatRange,
   minimizeFactor: floatRange,
   swipeOffset: PropTypes.number,
+  position: PropTypes.oneOf(['right', 'left']),
   contentWrapperStyle: PropTypes.object,
   frontStyle: PropTypes.object,
   content: PropTypes.element
 };
-
+SwipeAbleDrawer.defaultProps = {
+  position:'left'
+};
 export default SwipeAbleDrawer;
