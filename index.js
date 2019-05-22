@@ -33,9 +33,6 @@ class SwipeAbleDrawer extends Component {
     this.scale = 1;
     this.maxTranslateXValue = (-1)**this.isPositionRight * Math.ceil(this.state.dims.width * props.minimizeFactor);
     this.drawerAnimation = new Animated.Value(0);
-  }
-
-  componentWillMount() {
     this.panResponder = PanResponder.create({
       onStartShouldSetPanResponder: this._onStartShouldSetPanResponder,
       onMoveShouldSetPanResponder: this._onMoveShouldSetPanResponder,
@@ -44,6 +41,7 @@ class SwipeAbleDrawer extends Component {
     });
     Dimensions.addEventListener("change", this.dimhandler);
   }
+
   dimhandler = dims => this.setState({dims: dims.window});
 
   blockSwipeAbleDrawer = (isBlock) => {
