@@ -6,9 +6,12 @@ import {
   Animated,
   PanResponder,
   Dimensions,
+  StatusBar,
   Easing
 } from 'react-native';
-const {width, height} = Dimensions.get('window');
+
+const {width} = Dimensions.get('window');
+const height = Platform.OS === 'android' ? Dimensions.get('screen').height - StatusBar.currentHeight : Dimensions.get('window').height;
 
 class SwipeAbleDrawer extends Component {
   static defaultProps = {
