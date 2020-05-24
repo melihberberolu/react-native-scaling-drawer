@@ -187,7 +187,7 @@ class SwipeAbleDrawer extends Component {
             height:this.state.dims.height,
             transform: [{translateX}, {scale}]
           },
-            styles.shadow,
+            this.props.showShadow?this.props.shadowStyle:{},
             this.props.frontStyle]
           }
         >
@@ -223,16 +223,6 @@ const styles = StyleSheet.create({
     width,
     height,
     backgroundColor: "transparent"
-  },
-  shadow: {
-    shadowOffset: {
-      width: -10,
-      height: 0,
-    },
-    shadowColor: 'rgba(0,0,0,0.8)',
-    shadowOpacity: 1,
-    shadowRadius: 19,
-    left: 0
   }
 });
 
@@ -251,7 +241,9 @@ SwipeAbleDrawer.propTypes = {
   position: PropTypes.oneOf(['right', 'left']),
   contentWrapperStyle: PropTypes.object,
   frontStyle: PropTypes.object,
-  content: PropTypes.element
+  content: PropTypes.element,
+  showShadow: PropTypes.bool,
+  shadowStyle: PropTypes.object
 };
 SwipeAbleDrawer.defaultProps = {
   position:'left'
